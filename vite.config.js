@@ -7,6 +7,7 @@ export default {
       fileName: () => 'multiworker.js',
     },
     sourcemap: true,
+    minify: 'terser',
     rollupOptions: {
       output: {
         inlineDynamicImports: true,
