@@ -223,7 +223,7 @@ class MultiWorker {
    * @returns {String}
    */
   get _workerString() {
-    return workerString.replace('\'__MultiWorker_placeholder__\';', this._dependencyString + this.worker);
+    return workerString.replace('/* @preserve __MultiWorker_placeholder__ */', this._dependencyString + this.worker);
   }
 
   /**
