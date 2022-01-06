@@ -10,7 +10,7 @@ export default {
     rollupOptions: {
       output: {
         inlineDynamicImports: true,
-      }
-    }
+      },
+    },
   },
 };

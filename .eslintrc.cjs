@@ -16,6 +16,7 @@ module.exports = {
     'no-plusplus': 'off',
     'no-param-reassign': 'off',
     'no-underscore-dangle': 'off',
+    'no-unused-expressions': 'off',
     'default-param-last': 'off',
     'import/extensions': ['error', { js: 'always', json: 'always' }],
   },

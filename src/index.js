@@ -123,9 +123,9 @@ class MultiWorker {
     const post = new Post(transfers);
 
     const payload = {
-      args: args,
-      post: post
-    }
+      args,
+      post,
+    };
 
     if (this.ready && worker) {
       this._inProgressData[post.id] = {
@@ -166,7 +166,7 @@ class MultiWorker {
    * @param event
    */
   static _defaultMessageEvent(event) {
-    const post = event.data.post;
+    const { post } = event.data;
     const { cb } = this._inProgressData[post.id];
     const context = new WorkerMessage(this, post, event);
 
