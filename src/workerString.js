@@ -1,22 +1,23 @@
-export default `(function () {
+import { functionToInstantString } from './util.js';
+
+export default functionToInstantString(() => {
   (function () {
     let currentPost;
 
-    function _sendPost() {
-      let args = Array.prototype.slice.call(arguments);
+    function _sendPost(...args) {
       currentPost.done = args.shift();
       const transfers = Array.isArray(args[args.length - 1]) ? args.pop() : undefined;
-      postMessage({args: args, post: currentPost}, transfers);
+      postMessage({ args, post: currentPost }, transfers);
     }
 
-    self.return = _sendPost.bind(this, true);
-    self.post = _sendPost.bind(this, false);
+    globalThis.return = _sendPost.bind(this, true);
+    globalThis.post = _sendPost.bind(this, false);
 
-    self.addEventListener('message', function (e) {
+    globalThis.addEventListener('message', (e) => {
       currentPost = e.data.post;
-      self.receive.apply(e, e.data.args);
+      globalThis.receive.apply(e, e.data.args);
     }, false);
   }());
 
-  '__MultiWorker_placeholder__';
-})();`;
+  /* @preserve __MultiWorker_placeholder__ */
+});
