@@ -1,6 +1,6 @@
 export default {
   root: 'test',
   build: {
-    target: 'es2015'
-  }
-}
+    target: 'es2015',
+  },
+};

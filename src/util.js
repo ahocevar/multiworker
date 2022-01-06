@@ -34,17 +34,17 @@ export function noop() {
  * @param {Function} success
  */
 export function get(url, success) {
-  fetch(url).then((response) => response.text()).then(success).catch(e => {
+  fetch(url).then((response) => response.text()).then(success).catch(() => {
     if (url.startsWith('file://')) {
       url = url.substr(7);
     }
-    import('fs').then(fs => {
+    import('fs').then((fs) => {
       fs.readFile(url, 'utf8', (err, data) => {
         if (err) {
           throw err;
-        };
+        }
         success(data);
       });
-    }).catch(e => {throw e});
+    }).catch((error) => { throw error; });
   });
 }

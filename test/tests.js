@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 import { expect, should } from 'chai';
-import MultiWorker from '../src/index.js';
 import Worker from 'web-worker';
+import MultiWorker from '../src/index.js';
 
 should();
 
@@ -150,14 +150,13 @@ describe('Worker functionality', () => {
         setTimeout(() => {
           worker.workerList.length.should.equal(2);
           worker.workerList[0].should.be.instanceof(Worker);
-  
+
           worker.terminate();
-  
+
           worker.workerList.length.should.equal(0);
           expect(worker.workerList[0]).to.be.undefined;
           next();
         });
-
       });
 
       it('will wait until all processes end to terminate, then run callback', (next) => {
@@ -182,7 +181,7 @@ describe('Worker functionality', () => {
 
       it('will terminate instantly if true is passed', (next) => {
         const worker = new MultiWorker(() => {
-          self.receive = self.return;
+          globalThis.receive = globalThis.return;
         });
 
         worker
@@ -214,8 +213,9 @@ describe('Worker functionality', () => {
       });
 
       it('invoking terminate method inside callback is ok', (next) => {
-        // If internal processes happen in wrong order, this can lead to undefined type errors in console.
-        var worker = new MultiWorker({
+        // If internal processes happen in wrong order, this can lead to undefined type errors in
+        // console.
+        const worker = new MultiWorker({
           worker: simpleReturn,
           callback() {
             worker.terminate();
@@ -231,7 +231,7 @@ describe('Worker functionality', () => {
   describe('Queing and concurrency', () => {
     it('should delegate tasks to free workers', (next) => {
       const results = [];
-      var worker = new MultiWorker({
+      const worker = new MultiWorker({
         worker: () => {
           function calculate(n) {
             let result = 0;
@@ -241,8 +241,8 @@ describe('Worker functionality', () => {
             return result;
           }
 
-          self.receive = function (n) {
-            self.return(calculate(n));
+          globalThis.receive = function (n) {
+            globalThis.return(calculate(n));
           };
         },
         threads: 4,
@@ -328,8 +328,8 @@ describe('Worker functionality', () => {
       }
       const worker = new MultiWorker({
         worker: () => {
-          self.receive = function (n1, n2) {
-            self.return(add(n1, n2) + return1());
+          globalThis.receive = function (n1, n2) {
+            globalThis.return(add(n1, n2) + return1());
           };
         },
         dependencies: [return1, add],
@@ -346,13 +346,13 @@ describe('Worker functionality', () => {
 
   describe('Transferables', () => {
     it('accepts transfers as last argument to post and return', (next) => {
-      var inputBuffer = new ArrayBuffer(8);
+      const inputBuffer = new ArrayBuffer(8);
       const worker = new MultiWorker({
         worker: () => {
-          self.receive = function (buffer) {
-            self.return(buffer, buffer.byteLength, [buffer]);
+          globalThis.receive = function (buffer) {
+            globalThis.return(buffer, buffer.byteLength, [buffer]);
           };
-        }
+        },
       });
 
       worker
