@@ -25,9 +25,9 @@ Or, include the script the old fashioned way to make the MultiWorker constructor
 A MultiWorker instance is created with a function which is used as the code for the worker.
 ``` js
 var worker = new MultiWorker(function () {
-    self.receive = function (n) {
-        self.return(n + 1);
-    }
+  self.receive = function (n) {
+    self.return(n + 1);
+  }
 });
 ```
 
@@ -36,23 +36,23 @@ which returns a value with self.return.
 
 ``` js
 worker.post(5, function (n) {
-    console.log(n); // => 6
+  console.log(n); // => 6
 });
 ```
-Both `worker.post()` and `self.return()` can receive an array of transfers, so Transferables can be used as arguments.
+Both `worker.post()` in the main thread and `self.return()` and `self.post()` in the worker can receive an array of transfers as last argument, to support Transferables.
 ``` js
 var worker = new MultiWorker(function () {
-    self.receive = function (inputBuffer) {
-        // Worker now has ownership of the input buffer
-        var resultBuffer = inputBuffer
-        self.return(resultBuffer, [resultBuffer]);
-        // Ownership of the result buffer has been transferred to the main thread
-    }
+  self.receive = function (inputBuffer) {
+    // Worker now has ownership of the input buffer
+    var resultBuffer = inputBuffer
+    self.return(resultBuffer, [resultBuffer]);
+    // Ownership of the result buffer has been transferred to the main thread
+  }
 });
 var inputBuffer = new ArrayBuffer(5);
 worker.post(inputBuffer, function(resultBuffer) {
-    // Main thread now has ownership of the result buffer
-});
+  // Main thread now has ownership of the result buffer
+}, [inputBuffer]);
 // Ownership of the input buffer has been transferred to the worker
 ```
 
@@ -61,7 +61,7 @@ worker.post(inputBuffer, function(resultBuffer) {
 When creating a MultiWorker instance, a function can be passed:
 ``` js
 var worker = new MultiWorker(function () {
-    self.receive = self.return; // Simply return the input
+  self.receive = self.return; // Simply return the input
 });
 ```
 
@@ -70,34 +70,34 @@ Alternatively, a filepath can be used.
 var worker = new MultiWorker('workers/example.js');
 
 worker.post('foo', function () {
-    // This post won't occur until example.js has been fetched and the worker is ready.
+  // This post won't occur until example.js has been fetched and the worker ready.
 });
 ```
 
 The worker can also be defined in an options object:
 ``` js
 var worker = new MultiWorker({
-    worker: function () {
-        self.receive = self.return; // Simply return the input
-    }
+  worker: function () {
+    self.receive = self.return; // Simply return the input
+  }
 });
 ```
 
 The worker url can also be passed as first argument, and all other options in an object literal as second argument:
 ``` js
-var worker = new MultiWorker('workers/example.js', { threads: 2 });
+var worker = new MultiWorker('workers/example.js', { threads: 2 })
 ```
 
 ### callback
 A function to be called whenever a worker sends a value back to the main program via self.post or self.return.
 ``` js
 var worker = new MultiWorker({
-    worker:   function () {
-        self.receive = self.return; // Simply return the input
-    },
-    callback: function (val) {
-        console.log(val);
-    }
+  worker:   function () {
+    self.receive = self.return; // Simply return the input
+  },
+  callback: function (val) {
+    console.log(val);
+  }
 });
 
 worker.post(1); // The callback function above will log 1 in the console
@@ -106,16 +106,16 @@ worker.post(1); // The callback function above will log 1 in the console
 If a callback is passed as an argument when the post request is made, then the default callback is not used.
 ``` js
 var worker = new MultiWorker({
-    worker:   function () {
-        self.receive = self.return; // Simply return the input
-    },
-    callback: function (val) {
-        console.log(val);
-    }
+  worker:   function () {
+    self.receive = self.return; // Simply return the input
+  },
+  callback: function (val) {
+    console.log(val);
+  }
 });
 
 worker.post(1, function (val) {
-    alert(val); // The callback function above will not be used. 1 will be alerted.
+  alert(val); // The callback function above will not be used. 1 will be alerted.
 });
 ```
 
@@ -125,32 +125,32 @@ The number of workers to spawn. The default is 1.
 **Multiple web workers:**
 ``` js
 var worker = new MultiWorker({
-    worker:  function () {
-        self.receive = self.return; // Simply return the input
-    },
-    threads: 2
+  worker:  function () {
+    self.receive = self.return; // Simply return the input
+  },
+  threads: 2
 });
 
 // The posts below are processed in parallel.
 // There is a chance that the second post will return first.
 worker
-        .post(42)
-        .post(11);
+  .post(42)
+  .post(11);
 ```
 
 **A single web worker:**
 ``` js
 var worker = new MultiWorker({
-    worker:  function () {
-        self.receive = self.return; // Simply return the input
-    },
-    threads: 1
+  worker:  function () {
+    self.receive = self.return; // Simply return the input
+  },
+  threads: 1
 });
 
 // The posts below are processed in series.
 worker
-        .post(42)
-        .post(11);
+  .post(42)
+  .post(11);
 ```
 
 ### dependencies
@@ -158,29 +158,29 @@ An array of named functions that can be used globally in the workers. These func
 
 ``` js
 var worker = new MultiWorker({
-    worker:       function () {
-        self.receive = function (n1, n2) {
-            self.return(multiply(n1, n2) + add(n1, n2));
-        }
-    },
+  worker: function () {
+    self.receive = function (n1, n2) {
+        self.return(multiply(n1, n2) + add(n1, n2));
+    }
+  },
     dependencies: [
-        function multiply(n1, n2) {
-            return n1 * n2;
-        },
-        function add(n1, n2) {
-            return n1 + n2;
-        }
-    ]
+      function multiply(n1, n2) {
+        return n1 * n2;
+      },
+      function add(n1, n2) {
+        return n1 + n2;
+      }
+  ]
 });
 
 worker.post(10, 2, function (n) {
-    console.log(n); // => 32
+  console.log(n); // => 32
 });
 ```
 
 
 ## MultiWorker Methods
-### post([...args], [callback])
+### post([...args], [callback], [transfers])
 Interact with a MultiWorker instance. This method accepts an arbitrary number of parameters, which the worker can access
 with the self.receive method.
 
@@ -189,13 +189,13 @@ creating the worker instance.
 
 ``` js
 var worker = new MultiWorker(function () {
-    self.receive = function (n1, n2) {
-        self.return(n1 + n2);
-    }
+  self.receive = function (n1, n2) {
+    self.return(n1 + n2);
+  }
 });
 
 worker.post(2, 2, function (result) {
-    console.log(result); // => 4
+  console.log(result); // => 4
 });
 ```
 
@@ -209,7 +209,7 @@ worker.post(10).terminate();
 ``` js
 // Wait for post to return, then terminate and run the callback
 worker.post(10).terminate(function () {
-    console.log('Worker terminated');
+  console.log('Worker terminated');
 });
 ```
 
@@ -226,57 +226,54 @@ self object.
 Fired in response to calling post() on a MultiWorker instance. This is the start of any process from within a worker.
 ``` js
 var worker = new MultiWorker(function () {
-    self.receive = function (n1, n2) {
-        self.return(n1 + n2);
-    }
+  self.receive = function (n1, n2) {
+    self.return(n1 + n2);
+  }
 });
 
 worker.post(2, 2, function (result) {
-    console.log(result); // => 4
+  console.log(result); // => 4
 });
 ```
 
-### self.return([...args])
+### self.return([...args], [transfers])
 Sends a response back to the main thread.
 This will be called inside of self.receive - see the code example for that method for usage.
 
 
-### self.post([...args])
+### self.post([...args], [transfers])
 Similar to self.return, but will not mark the current task as finished. self.return must be called after all work is
 done in order to start processing the next item in the queue.
 ``` js
 var worker = new MultiWorker({
-    worker:   function () {
-        self.receive = function () {
-            var i = 100;
+  worker:   function () {
+    self.receive = function () {
+      var i = 100;
 
-            // A pointless loop to demonstrate.
-            // A real-world usage could be a progress bar.
-            while (i--) {
-
-                if (i) {
-                    self.post(i);
-                } else {
-                    self.return(i);
-                }
-
-            }
-
-        }
-    },
-    callback: function (n) {
-        if (!this.done) {
-            console.log('left to complete: ' + n);
+      // A pointless loop to demonstrate.
+      // A real-world usage could be a progress bar.
+      while (i--) {
+        if (i) {
+          self.post(i);
         } else {
-            console.log('Finished');
+          self.return(i);
         }
+      }
     }
+  },
+  callback: function (n) {
+    if (!this.done) {
+      console.log('left to complete: ' + n);
+    } else {
+      console.log('Finished');
+    }
+  }
 });
 
 
 worker
-        .post()
-        .post(); // This second post won't execute until self.return is called in response to the previous post.
+  .post()
+  .post(); // This second post won't execute until self.return is called in response to the previous post.
 ```
 
 ## Developing

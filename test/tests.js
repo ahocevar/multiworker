@@ -345,23 +345,31 @@ describe('Worker functionality', () => {
   });
 
   describe('Transferables', () => {
-    it('accepts transfers as last argument to post and return', (next) => {
+    it('accepts transfers', (next) => {
       const inputBuffer = new ArrayBuffer(8);
       const worker = new MultiWorker({
         worker: () => {
           globalThis.receive = function (buffer) {
-            globalThis.return(buffer, buffer.byteLength, [buffer]);
+            globalThis.post(buffer.byteLength, buffer, [buffer]);
+            const workerBuffer = new ArrayBuffer(10);
+            globalThis.return(buffer.byteLength, workerBuffer, [workerBuffer]);
           };
         },
       });
 
+      let calls = 0;
       worker
-        .post(inputBuffer, (resultBuffer, receivedByteLength) => {
+        .post(inputBuffer, (receivedByteLength, resultBuffer) => {
+          calls++;
           resultBuffer.should.be.instanceof(ArrayBuffer);
-          receivedByteLength.should.equal(8);
-          resultBuffer.byteLength.should.equal(8);
-          inputBuffer.byteLength.should.equal(0);
-          next();
+          if (calls === 1) {
+            resultBuffer.byteLength.should.equal(8);
+            receivedByteLength.should.equal(8);
+          } else {
+            resultBuffer.byteLength.should.equal(10);
+            receivedByteLength.should.equal(0);
+            next();
+          }
         }, [inputBuffer])
         .terminate();
     });
