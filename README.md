@@ -65,7 +65,7 @@ var worker = new MultiWorker(function () {
 });
 ```
 
-Alternatively, a filepath can be used.
+Alternatively, a filepath, URL, or a stringified IIFE can be used.
 ``` js
 var worker = new MultiWorker('workers/example.js');
 

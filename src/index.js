@@ -28,14 +28,16 @@ class MultiWorker {
     }
     worker = (options.worker !== undefined) ? options.worker : options;
 
-    if (typeof worker === 'string') {
+    if (typeof worker === 'string' && !/^!?\(?\s*function\s*\([^)]*\)\s*\{/.test(worker)) {
+      // URL or JS file
       get(worker, (text) => {
         this.worker = text;
         this._init();
       });
-    } else if (typeof worker === 'function') {
+    } else {
+      // string or function
       setTimeout(() => {
-        this.worker = functionToInstantString(worker);
+        this.worker = typeof worker === 'function' ? functionToInstantString(worker) : worker;
         this._init();
       });
     }

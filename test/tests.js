@@ -27,6 +27,16 @@ describe('Worker functionality', () => {
         .terminate();
     });
 
+    it('...passing only a stringified IIFE to constructor', (next) => {
+      const worker = new MultiWorker('!(function() { globalThis.receive = globalThis.return; })()');
+
+      worker
+        .post(() => {
+          next();
+        })
+        .terminate();
+    });
+
     it('...passing only a url to constructor', (next) => {
       const worker = new MultiWorker(new URL('./worker.js', import.meta.url).href);
 
