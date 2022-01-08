@@ -17,7 +17,7 @@ import MultiWorker from 'multiworker';
 
 Or, include the script the old fashioned way to make the MultiWorker constructor available globally:
 ```HTML
-<script src="dist/multiworker.js"></script>
+<script src="dist/multiworker.min.js"></script>
 ```
 
 ## Usage
